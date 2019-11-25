@@ -12,7 +12,6 @@ import compress from 'koa-compress'
 const app = new koa()
 
 
-
 const isDevMode = process.env.NODE_ENV === 'production' ? false : true
 
 /**
