@@ -34,5 +34,6 @@ app.use(middleware)
 app.use(router())
 
 app.listen(port,()=>{
+  console.log('1111')
   console.log(`the server is. running at ${port}`)
 })

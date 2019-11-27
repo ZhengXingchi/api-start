@@ -5,9 +5,9 @@ LABEL maintainer=491883290@qq.com
 
 WORKDIR /app
 
-COPY ..
+COPY . .
 
-RUN yarn install. --registry=https://registry.npm.taobao.org
+RUN yarn install --registry=https://registry.npm.taobao.org
 
 RUN npm run build
 
