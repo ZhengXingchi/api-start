@@ -12,6 +12,7 @@ import compress from 'koa-compress'
 import config from './config/index'
 import errorHandle from './common/ErrorHandle'
 
+
 const app = new koa()
 
 const isDevMode = process.env.NODE_ENV === 'production' ? false : true
