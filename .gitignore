@@ -9,6 +9,11 @@
 .AppleDouble
 .LSOverride
 
+
+### private ###
+**/config/private.js
+
+
 # Icon must end with two \r
 Icon
 
