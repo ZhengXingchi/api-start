@@ -9,13 +9,20 @@ const PostSchema = new Schema({
   'created': { type: Date },
   'catalog': { type: String },
   'fav': { type: String },
-  'isEnd': { type: String },
-  'reads': { type: Number },
-  'answer': { type: Number },
-  'status': { type: String },
-  'isTop': { type: String },
-  'sort': { type: String },
-  'tags': { type: Array }
+  'isEnd': { type: String, default: '0' },
+  'reads': { type: Number, default: 0 },
+  'answer': { type: Number, default: 0 },
+  'status': { type: String, default: '0' },
+  'isTop': { type: String, default: '0' },
+  'sort': { type: String, default: '100' },
+  'tags': {
+    type: Array, defaut: [
+      // {
+      //   name: '',
+      //   class: ''
+      // }
+    ]
+  }
 })
 
 PostSchema.pre('save', function (next) {
@@ -38,13 +45,20 @@ PostSchema.statics = {
     return this.find({
       "created": {
         $gte: moment().subtract(7, 'days')
-
       }
     }, {
       answer: 1,
       title: 1
     }).sort({ 'answer': -1 })
       .limit(15)
+  },
+  findByTid: function (id) {
+    return this.findOne({ _id: id })
+      .populate({
+        path: "uid",
+        select: "name  isVip pic _id"
+      })
+
   }
 }
 

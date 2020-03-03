@@ -6,4 +6,6 @@ router.prefix('/user')
 router.get('/fav', userController.userSign)
 //更新用户基本信息接口
 router.post('/basic', userController.updateUserInfo)
+//修改密码接口
+router.post('/change-password',userController.changePasswd)
 export default router

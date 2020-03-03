@@ -7,6 +7,15 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "New Launch via NPM",
+      "runtimeExecutable": "npm",
+      "restart": true,
+      "runtimeArgs": ["run-script", "start"],
+      "port": 9229
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Launch via NPM",
       "runtimeExecutable": "npm",
       "restart": true,

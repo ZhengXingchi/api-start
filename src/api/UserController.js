@@ -7,6 +7,7 @@ import uuid from 'uuid/v4'
 import jwt from 'jsonwebtoken'
 import { setValue, getValue } from '@/config/RedisConfig'
 import config from '@/config'
+import bcrypt from 'bcryptjs'
 class UserController {
   async userSign (ctx) {
     const obj = await getJWTPayload(ctx.header.authorization)
@@ -165,6 +166,35 @@ class UserController {
         msg: '更新用户名称'
       }
     }
+  }
+
+  //修改密码接口
+  async changePasswd(ctx){
+     const {body} =ctx.request
+     const obj=await getJWTPayload(ctx.header.authorization)
+     console.log(obj)
+     const user=await User.findOne({_id:obj._id})
+     console.log(user.password)
+     if(await bcrypt.compare(body.oldpwd,user.password)){
+       const newpassword=await bcrypt.hash(body.newpwd,5)
+       const result=await User.updateOne(
+         {_id: obj._id},
+         {
+           $set:{
+             password:newpassword
+           }
+         }
+       )
+       ctx.body={
+         msg:'更新密码成功',
+         code:200
+       }
+     }else{
+       ctx.body={
+         msg:"更新密码错误",
+         code:500
+       }
+     }
   }
 }
 export default new UserController()
