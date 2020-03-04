@@ -172,11 +172,14 @@ class ContentController {
       }
       return
     }
+     
     const post = await Post.findByTid(params.tid)
-    const result = rename(post.toJSON(),'uid','user')
+    const result = await Post.updateOne({_id:params.tid},{$inc:{reads:1}})
+    // if(post._id && reasukl)
+    const result1 = rename(post.toJSON(),'uid','user')
     ctx.body = {
       code: 200,
-      data: result,
+      data: result1,
       msg:'查询文章详情成功'
     }
   }

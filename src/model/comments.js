@@ -18,6 +18,12 @@ CommentsSchema.pre('save', function (next) {
     next()
 })
 CommentsSchema.statics = {
+    findByTid: function (id) {
+        return this.find({ tid: id })
+    },
+    findByCid: function (id) {
+        return this.findOne({ _id: id })
+    },
     getCommentsList: function (id, page, limit) {
         return this.find({ tid: id }).populate({
             path: 'cuid',
