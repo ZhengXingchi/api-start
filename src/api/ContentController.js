@@ -163,6 +163,50 @@ class ContentController {
       }
     }
   }
+
+  async updatePost(ctx){
+    console.log('11111111111111111')
+    const { body } = ctx.request
+    let sid = body.sid
+    let code = body.code
+    // 验证图片验证码的时效性、正确性
+    let result = await checkCode(sid, code)
+    if (result) {
+      const obj = await getJWTPayload(ctx.header.authorization)
+    // 判断帖子作者是否为本人
+    const post = await Post.findOne({_id:body.tid})
+     // 判断帖子是否结贴
+    if(post.uid === obj._id && post.isEnd === '0'){
+      const result = await Post.updateOne({_id:body.tid},body)
+      if(result.ok === 1){
+        ctx.body = {
+          code: 200,
+          msg: '更新帖子成功',
+          data: result
+        }
+      }else{
+        ctx.body = {
+          code: 500,
+          msg: '编辑帖子，更新失败',
+          data: result
+        }
+      }
+   
+    }else{
+      ctx.body={
+        code:401,
+        mag:'没有操作的权限'
+      }
+    }
+    } else {
+      // 图片验证码验证失败
+      ctx.body = {
+        code: 500,
+        msg: '图片验证码验证失败'
+      }
+    }
+  }
+
   async getPostDetail(ctx) {
     const params = ctx.query
     if (!params.tid) {
@@ -174,13 +218,20 @@ class ContentController {
     }
      
     const post = await Post.findByTid(params.tid)
+    // 更新文章阅读计数
     const result = await Post.updateOne({_id:params.tid},{$inc:{reads:1}})
-    // if(post._id && reasukl)
-    const result1 = rename(post.toJSON(),'uid','user')
-    ctx.body = {
-      code: 200,
-      data: result1,
-      msg:'查询文章详情成功'
+    if(post._id && result.ok === 1){
+      const result1 = rename(post.toJSON(),'uid','user')
+      ctx.body = {
+        code: 200,
+        data: result1,
+        msg:'查询文章详情成功'
+      }
+    }else{
+      ctx.body = {
+        code: 500,
+        msg:'查询文章详情成功'
+      }
     }
   }
 }

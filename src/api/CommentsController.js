@@ -27,12 +27,24 @@ class CommentsController {
         let result = await Comments.getCommentsList(tid, page, limit)
         // 判断用户是否登陆，已登录的用户才会去判断点赞信息
         let obj = {}
-        if(typeof ctx.header.authrization!=='undefined'){
-            const obj = await getJWTPayload(ctx.header.authorization)
+        if (typeof ctx.header.authorization !== 'undefined') {
+            obj = await getJWTPayload(ctx.header.authorization)
         }
         result = result.map(item => item.toJSON())
         if (obj && typeof obj._id !== 'undefined') {
-            // result.forEach(async (item) => {
+            result.forEach(async (item) => {
+                item.handed = '0'
+                const commentsHands = await CommentsHands.findOne({ cid: item._id, uid: obj._id })
+                if (commentsHands && commentsHands.cid) {
+                    console.log(commentsHands, 'commentsHands')
+                    if (commentsHands.uid === obj._id) {
+                        item.handed = '1'
+                    }
+                }
+            })
+            console.log('-----------------')
+            // for(let i=0;i<result.length;i++){
+            //     let item=result[i]
             //     item.handed = '0'
             //     const commentsHands = await CommentsHands.findOne({ cid: item._id,uid:obj._id })
             //     if (commentsHands && commentsHands.cid) {
@@ -41,18 +53,7 @@ class CommentsController {
             //             item.handed = '1'
             //         }
             //     }    
-            // })
-            for(let i=0;i<result.length;i++){
-                let item=result[i]
-                item.handed = '0'
-                const commentsHands = await CommentsHands.findOne({ cid: item._id,uid:obj._id })
-                if (commentsHands && commentsHands.cid) {
-                    console.log(commentsHands,'commentsHands')
-                    if (commentsHands.uid === obj._id) {
-                        item.handed = '1'
-                    }
-                }    
-            }
+            // }
         }
         const total = await Comments.queryCount(tid)
         ctx.body = {
@@ -88,11 +89,20 @@ class CommentsController {
         const obj = await getJWTPayload(ctx.header.authorization)
         newComment.cuid = obj._id
         const comment = await newComment.save()
-        ctx.body = {
-            code: 200,
-            msg: '评论成功',
-            data: comment
+        const result1 = await Post.updateOne({ _id: body.tid }, { $inc: { answer: 1 } })
+        if(comment._id && result1.ok === 1){
+            ctx.body = {
+                code: 200,
+                msg: '评论成功',
+                data: comment
+            }
+        }else{
+            ctx.body = {
+                code: 500,
+                msg: '评论失败'
+            }
         }
+       
     }
     async updateComment(ctx) {
         const check = await canReply(ctx)
@@ -170,8 +180,8 @@ class CommentsController {
         const obj = await getJWTPayload(ctx.header.authorization)
         const params = ctx.query
         //  判断用户是否已经点赞
-        const tmp = await CommentsHands.find({cid:params.cid,uid:obj._id})
-        if (tmp.length>0) {
+        const tmp = await CommentsHands.find({ cid: params.cid, uid: obj._id })
+        if (tmp.length > 0) {
 
             ctx.body = {
                 code: 500,
